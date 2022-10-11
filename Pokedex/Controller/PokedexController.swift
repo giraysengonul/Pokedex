@@ -14,6 +14,11 @@ class PokedexController: UICollectionViewController {
         super.viewDidLoad()
         style()
         layout()
+        fetch()
+    }
+     // MARK: - API
+    func fetch(){
+        Service.shared.fetchPokemon()
     }
     
 }
