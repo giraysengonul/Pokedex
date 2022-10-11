@@ -14,8 +14,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.makeKeyAndVisible()
         let layout = UICollectionViewFlowLayout()
-        window?.rootViewController = UINavigationController(rootViewController: PokedexController(collectionViewLayout: layout))
+        window?.rootViewController = navigationController(rootViewController: PokedexController(collectionViewLayout: layout))
         return true
+    }
+    
+    private func navigationController(rootViewController: UICollectionViewController) -> UINavigationController{
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .mainPink
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        let navigationController = UINavigationController(rootViewController: rootViewController)
+        navigationController.navigationBar.compactAppearance = appearance
+        navigationController.navigationBar.standardAppearance = appearance
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+        navigationController.navigationBar.compactScrollEdgeAppearance = appearance
+        return navigationController
     }
 }
 
