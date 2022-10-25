@@ -8,9 +8,15 @@
 import UIKit
 class PokedexCell: UICollectionViewCell {
     // MARK: - Properties
+    var pokemon: Pokemon? {
+        didSet{
+            nameLabel.text = pokemon?.name
+            imageView.image = pokemon?.image
+        }
+    }
     let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.backgroundColor = .lightGray
         return imageView

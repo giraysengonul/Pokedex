@@ -9,6 +9,7 @@ import UIKit
 private let reuseIdentifier = "PokedexCell"
 class PokedexController: UICollectionViewController {
     // MARK: - Properties
+    var pokemon = [Pokemon]()
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,11 +17,15 @@ class PokedexController: UICollectionViewController {
         layout()
         fetch()
     }
-     // MARK: - API
+    // MARK: - API
     func fetch(){
-        Service.shared.fetchPokemon()
+        Service.shared.fetchPokemon { pokemon in
+            DispatchQueue.main.async {
+                self.pokemon = pokemon
+                self.collectionView.reloadData()
+            }
+        }
     }
-    
 }
 // MARK: - Helpers
 extension PokedexController{
@@ -49,11 +54,12 @@ extension PokedexController{
 // MARK: - UICollectionViewDelegate/DataSource
 extension PokedexController{
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 6
+        return pokemon.count
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PokedexCell
-        cell.backgroundColor = .black
+        print(indexPath.item)
+        cell.pokemon = self.pokemon[indexPath.item]
         return cell
     }
 }
