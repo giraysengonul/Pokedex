@@ -59,6 +59,8 @@ extension PokedexCell{
         //nameContainerView style
         nameContainerView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(nameContainerView)
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        addGestureRecognizer(longPressGestureRecognizer)
     }
     private func layout(){
         //imageView layout
@@ -75,5 +77,13 @@ extension PokedexCell{
             trailingAnchor.constraint(equalTo: nameContainerView.trailingAnchor),
             nameContainerView.heightAnchor.constraint(equalToConstant: 32)
         ])
+    }
+}
+ // MARK: - Selector
+extension PokedexCell{
+    @objc func handleLongPress(_ sender: UILongPressGestureRecognizer){
+        if sender.state == .began{
+            
+        }
     }
 }

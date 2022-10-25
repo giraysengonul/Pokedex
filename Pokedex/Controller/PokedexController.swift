@@ -10,6 +10,11 @@ private let reuseIdentifier = "PokedexCell"
 class PokedexController: UICollectionViewController {
     // MARK: - Properties
     var pokemon = [Pokemon]()
+    private let infoView: InfoView = {
+        let view = InfoView()
+        view.layer.cornerRadius = 5
+        return view
+    }()
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,10 +38,19 @@ extension PokedexController{
         collectionView.backgroundColor = .white
         configureNavigation()
         collectionView.register(PokedexCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        //infoView style
+        infoView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(infoView)
         
     }
     private func layout(){
-        
+        //infoView layout
+        NSLayoutConstraint.activate([
+            infoView.heightAnchor.constraint(equalToConstant: 350),
+            infoView.widthAnchor.constraint(equalToConstant: view.frame.width - 64),
+            infoView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            infoView.centerYAnchor.constraint(equalTo: view.centerYAnchor,constant: -44),
+        ])
     }
     private func configureNavigation(){
         navigationController?.navigationBar.isTranslucent = false
