@@ -15,6 +15,11 @@ class PokedexController: UICollectionViewController {
         view.layer.cornerRadius = 5
         return view
     }()
+    private let visualEffectView: UIVisualEffectView = {
+        let blurEffect = UIBlurEffect(style: .dark)
+        let view = UIVisualEffectView(effect: blurEffect)
+        return view
+    }()
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,18 +43,20 @@ extension PokedexController{
         collectionView.backgroundColor = .white
         configureNavigation()
         collectionView.register(PokedexCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        //infoView style
-        infoView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(infoView)
-        
+        //visualEffectView style
+        visualEffectView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(visualEffectView)
+        visualEffectView.alpha = 0
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDismissal))
+        visualEffectView.addGestureRecognizer(gestureRecognizer)
     }
     private func layout(){
-        //infoView layout
+        //visualEffectView layout
         NSLayoutConstraint.activate([
-            infoView.heightAnchor.constraint(equalToConstant: 350),
-            infoView.widthAnchor.constraint(equalToConstant: view.frame.width - 64),
-            infoView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            infoView.centerYAnchor.constraint(equalTo: view.centerYAnchor,constant: -44),
+            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor),
+            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            view.bottomAnchor.constraint(equalTo: visualEffectView.bottomAnchor),
+            view.trailingAnchor.constraint(equalTo: visualEffectView.trailingAnchor)
         ])
     }
     private func configureNavigation(){
@@ -59,10 +66,22 @@ extension PokedexController{
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSerarcBar))
         navigationItem.rightBarButtonItem?.tintColor = .white
     }
+    private func dismissInfoView(pokemon: Pokemon?){
+        UIView.animate(withDuration: 0.5) {
+            self.infoView.alpha = 0
+            self.infoView.transform = .init(scaleX: 1.3, y: 1.3)
+            self.visualEffectView.alpha = 0
+        } completion: { _ in
+            self.infoView.removeFromSuperview()
+        }
+    }
 }
 // MARK: - Selectors
 extension PokedexController{
     @objc func showSerarcBar(_ sender: UIBarButtonItem){
+    }
+    @objc func handleDismissal(_ sender: UITapGestureRecognizer){
+        dismissInfoView(pokemon: nil)
     }
 }
 // MARK: - UICollectionViewDelegate/DataSource
@@ -72,8 +91,8 @@ extension PokedexController{
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PokedexCell
-        print(indexPath.item)
         cell.pokemon = self.pokemon[indexPath.item]
+        cell.delegate = self
         return cell
     }
 }
@@ -85,5 +104,35 @@ extension PokedexController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         let EdgeInt = UIEdgeInsets(top: 32, left: 8, bottom: 8, right: 8)
         return EdgeInt
+    }
+}
+// MARK: - PokedexCellDelegate
+extension PokedexController: PokedexCellDelegate{
+    func presentInfoView(withPokemon pokemon: Pokemon) {
+        //infoView style
+        infoView.translatesAutoresizingMaskIntoConstraints = false
+        infoView.delegate = self
+        infoView.pokemon = pokemon
+        view.addSubview(infoView)
+        //infoView layout
+        NSLayoutConstraint.activate([
+            infoView.heightAnchor.constraint(equalToConstant: 350),
+            infoView.widthAnchor.constraint(equalToConstant: view.frame.width - 64),
+            infoView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            infoView.centerYAnchor.constraint(equalTo: view.centerYAnchor,constant: -44),
+        ])
+        infoView.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
+        infoView.alpha = 0
+        UIView.animate(withDuration: 0.5) {
+            self.infoView.alpha = 1
+            self.infoView.transform = .identity
+            self.visualEffectView.alpha = 1
+        }
+    }
+}
+// MARK: - InfoViewDelegate
+extension PokedexController: InfoViewDelegate{
+    func dismissInfoView(withPokemon pokemon: Pokemon?) {
+        dismissInfoView(pokemon: pokemon)
     }
 }

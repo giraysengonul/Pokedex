@@ -6,13 +6,35 @@
 //
 
 import UIKit
+protocol InfoViewDelegate: AnyObject {
+    func dismissInfoView(withPokemon pokemon: Pokemon?)
+}
 class InfoView: UIView {
     // MARK: - Properties
+    weak var delegate: InfoViewDelegate?
+    var pokemon: Pokemon?{
+        didSet{
+            guard let pokemon = pokemon else { return }
+            guard let type = pokemon.type else { return }
+            guard let defense = pokemon.defense else { return }
+            guard let attack = pokemon.attack else { return }
+            guard let id = pokemon.id else { return }
+            guard let height = pokemon.height else { return }
+            guard let weight = pokemon.weight else { return }
+            imageView.image = pokemon.image
+            nameLabel.text = pokemon.name
+            configurelabel(label: typeLabel, title: "Type", details: type)
+            configurelabel(label: defenseLabel, title: "Defense", details: "\(defense)")
+            configurelabel(label: heightLabel, title: "Height", details: "\(height)")
+            configurelabel(label: weightLabel, title: "Weigth", details: "\(weight)")
+            configurelabel(label: pokedexLabel, title: "Pokedex Id", details: "\(id)")
+            configurelabel(label: attackLabel, title: "Base Attack", details: "\(attack)")
+        }
+    }
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleToFill
         imageView.clipsToBounds = true
-        imageView.backgroundColor = .lightGray
         return imageView
     }()
     private lazy var nameContainerView: UIView = {
@@ -156,10 +178,16 @@ extension InfoView{
             infoButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
+    private func configurelabel(label: UILabel, title: String, details: String){
+        let attributedText = NSMutableAttributedString(string: "\(title): ",attributes: [.font : UIFont.boldSystemFont(ofSize: 16), .foregroundColor : UIColor.mainPink])
+        attributedText.append(NSAttributedString(string: details,attributes: [.font : UIFont.systemFont(ofSize: 16), .foregroundColor : UIColor.gray]))
+        label.attributedText = attributedText
+    }
 }
 // MARK: - Selector
 extension InfoView {
     @objc func handleViewMoreInfo(_ sender: UIButton){
-        
+        guard let pokemon = pokemon else{ return }
+        delegate?.dismissInfoView(withPokemon: pokemon)
     }
 }

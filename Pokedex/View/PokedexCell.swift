@@ -6,8 +6,12 @@
 //
 
 import UIKit
+protocol PokedexCellDelegate: AnyObject{
+    func presentInfoView(withPokemon pokemon: Pokemon)
+}
 class PokedexCell: UICollectionViewCell {
     // MARK: - Properties
+    weak var delegate: PokedexCellDelegate?
     var pokemon: Pokemon? {
         didSet{
             nameLabel.text = pokemon?.name
@@ -79,11 +83,12 @@ extension PokedexCell{
         ])
     }
 }
- // MARK: - Selector
+// MARK: - Selector
 extension PokedexCell{
     @objc func handleLongPress(_ sender: UILongPressGestureRecognizer){
         if sender.state == .began{
-            
+            guard let pokemon = pokemon else { return }
+            delegate?.presentInfoView(withPokemon: pokemon)
         }
     }
 }
