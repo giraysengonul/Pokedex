@@ -76,6 +76,9 @@ extension PokedexController{
             self.visualEffectView.alpha = 0
         } completion: { _ in
             self.infoView.removeFromSuperview()
+            let controller = PokemonInfoController()
+            controller.pokemon = pokemon
+            self.navigationController?.pushViewController(controller, animated: true)
         }
     }
     private func configureSearchBarButton(){
@@ -132,6 +135,12 @@ extension PokedexController{
         cell.pokemon = insearchMode ? self.filteredPokemon[indexPath.item]: self.pokemon[indexPath.item]
         cell.delegate = self
         return cell
+    }
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let controller = PokemonInfoController()
+        controller.pokemon = insearchMode ? filteredPokemon[indexPath.row] : pokemon[indexPath.row]
+        controller.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 extension PokedexController: UICollectionViewDelegateFlowLayout{

@@ -178,11 +178,6 @@ extension InfoView{
             infoButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-    private func configurelabel(label: UILabel, title: String, details: String){
-        let attributedText = NSMutableAttributedString(string: "\(title): ",attributes: [.font : UIFont.boldSystemFont(ofSize: 16), .foregroundColor : UIColor.mainPink])
-        attributedText.append(NSAttributedString(string: details,attributes: [.font : UIFont.systemFont(ofSize: 16), .foregroundColor : UIColor.gray]))
-        label.attributedText = attributedText
-    }
 }
 // MARK: - Selector
 extension InfoView {
