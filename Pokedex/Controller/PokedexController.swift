@@ -10,6 +10,9 @@ private let reuseIdentifier = "PokedexCell"
 class PokedexController: UICollectionViewController {
     // MARK: - Properties
     var pokemon = [Pokemon]()
+    var filteredPokemon = [Pokemon]()
+    var insearchMode = false
+    var searchBar: UISearchBar!
     private let infoView: InfoView = {
         let view = InfoView()
         view.layer.cornerRadius = 5
@@ -49,6 +52,7 @@ extension PokedexController{
         visualEffectView.alpha = 0
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDismissal))
         visualEffectView.addGestureRecognizer(gestureRecognizer)
+        
     }
     private func layout(){
         //visualEffectView layout
@@ -63,8 +67,7 @@ extension PokedexController{
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = .mainPink
         navigationItem.title = "Poketex"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSerarcBar))
-        navigationItem.rightBarButtonItem?.tintColor = .white
+        configureSearchBarButton()
     }
     private func dismissInfoView(pokemon: Pokemon?){
         UIView.animate(withDuration: 0.5) {
@@ -75,10 +78,45 @@ extension PokedexController{
             self.infoView.removeFromSuperview()
         }
     }
+    private func configureSearchBarButton(){
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSearcBar))
+        navigationItem.rightBarButtonItem?.tintColor = .white
+    }
+    private func configureSearchBar(){
+        searchBar = UISearchBar()
+        searchBar.delegate = self
+        searchBar.sizeToFit()
+        searchBar.showsCancelButton = true
+        searchBar.becomeFirstResponder()
+        searchBar.tintColor = .white
+        navigationItem.rightBarButtonItem = nil
+        navigationItem.titleView = searchBar
+    }
+}
+// MARK: - UISearchBarDelegate
+extension PokedexController: UISearchBarDelegate{
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        navigationItem.titleView = nil
+        configureSearchBarButton()
+        insearchMode = false
+        collectionView.reloadData()
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" || searchBar.text == nil{
+            insearchMode = false
+            collectionView.reloadData()
+            view.endEditing(true)
+        }else{
+            insearchMode = true
+            filteredPokemon = pokemon.filter({$0.name?.range(of: searchText.uppercased()) != nil})
+            collectionView.reloadData()
+        }
+    }
 }
 // MARK: - Selectors
 extension PokedexController{
-    @objc func showSerarcBar(_ sender: UIBarButtonItem){
+    @objc func showSearcBar(_ sender: UIBarButtonItem){
+        configureSearchBar()
     }
     @objc func handleDismissal(_ sender: UITapGestureRecognizer){
         dismissInfoView(pokemon: nil)
@@ -87,11 +125,11 @@ extension PokedexController{
 // MARK: - UICollectionViewDelegate/DataSource
 extension PokedexController{
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return pokemon.count
+        return insearchMode ? filteredPokemon.count : pokemon.count
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PokedexCell
-        cell.pokemon = self.pokemon[indexPath.item]
+        cell.pokemon = insearchMode ? self.filteredPokemon[indexPath.item]: self.pokemon[indexPath.item]
         cell.delegate = self
         return cell
     }
